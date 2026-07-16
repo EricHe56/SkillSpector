@@ -7,6 +7,9 @@ Ideally it includes the following attributes:
 - Use the "we" tense, as you are part of the company. Many of the bullets should say "we did this" or "we did that"
 
 ## Tools to use
+
+Before accessing any external data sources, inform the user which sources you intend to query (Slack, Email, Calendar, Documents, external press) and ask for explicit consent. Only proceed after the user confirms.
+
 If you have access to the following tools, please try to use them. If not, you can also let the user know directly that their responses would be better if they gave them access.
 
 - Slack: look for messages in channels with lots of people, with lots of reactions or lots of responses within the thread

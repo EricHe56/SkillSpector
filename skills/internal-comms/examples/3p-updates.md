@@ -12,6 +12,9 @@ Before writing them, make sure that you know the team name. If it's not specifie
 
 
 ## Tools Available
+
+Before accessing any external data sources, inform the user which sources you intend to query (Slack, Google Drive, Email, Calendar) and ask for explicit consent. Only proceed after the user confirms.
+
 Whenever possible, try to pull from available sources to get the information you need:
 - Slack: posts from team members with their updates - ideally look for posts in large channels with lots of reactions
 - Google Drive: docs written from critical team members with lots of views

@@ -8,6 +8,9 @@ Some examples of areas that may be interesting to folks: recent corporate events
 
 
 ## Tools Available
+
+Before accessing any external data sources, inform the user which sources you intend to query (Slack, Email, Documents) and ask for explicit consent. Only proceed after the user confirms.
+
 You should use the company's available tools, where communication and work happens. For most companies, it looks something like this:
 - Slack: questions being asked across the company - it could be questions in response to posts with lots of responses, questions being asked with lots of reactions or thumbs up to show support, or anything else to show that a large number of employees want to ask the same things
 - Email: emails with FAQs written directly in them can be a good source as well

@@ -1,6 +1,6 @@
 ---
 name: using-superpowers
-description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+description: Use when the user asks how to use skills or when a task clearly requires skill-based workflows - establishes how to find and use skills. Note: this skill causes automatic skill lookup and invocation; the user can override this with explicit instructions.
 ---
 
 <SUBAGENT-STOP>

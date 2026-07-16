@@ -28,6 +28,8 @@ to ``None`` for raw-string mode.
 from __future__ import annotations
 
 import asyncio
+import json
+import os
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Literal
@@ -35,7 +37,7 @@ from typing import Literal
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, Field, field_validator
 
-from skillspector.llm_utils import get_chat_model
+from skillspector.llm_utils import get_chat_model, _extract_json_object
 from skillspector.logging_config import get_logger
 from skillspector.model_info import get_max_input_tokens
 from skillspector.models import Finding
@@ -45,6 +47,83 @@ logger = get_logger(__name__)
 # OpenAI suggests ~4 chars per token for English text with BPE tokenizers.
 CHARS_PER_TOKEN = 4
 CHUNK_OVERLAP_LINES = 50
+
+
+# ---------------------------------------------------------------------------
+# Structured-output method selection
+# ---------------------------------------------------------------------------
+
+
+def _resolve_structured_output_method() -> str | None:
+    """Resolve the ``method`` kwarg for ``ChatOpenAI.with_structured_output()``,
+    or return ``None`` to signal that the endpoint does not support any
+    ``response_format`` / ``tool_choice`` mechanism and prompt-injection
+    fallback should be used instead.
+
+    Order of precedence:
+    1. ``SKILLSPECTOR_STRUCTURED_OUTPUT_METHOD`` environment variable (explicit override).
+    2. Auto-detect: when ``OPENAI_BASE_URL`` points to a non-OpenAI endpoint
+       (e.g. DeepSeek, Fireworks, Together), return ``None`` to use
+       prompt-injection fallback — none of the three OpenAI-native methods
+       (``json_schema``, ``function_calling``, ``json_mode``) are portable across
+       enough compatible providers. DeepSeek in particular rejects all three:
+       ``json_schema`` is unsupported, ``function_calling`` conflicts with
+       thinking mode, and ``json_mode`` requires the literal word "json" in
+       the prompt.
+    3. Default: ``"json_schema"`` (the LangChain default for ``ChatOpenAI``).
+    """
+    explicit = os.environ.get("SKILLSPECTOR_STRUCTURED_OUTPUT_METHOD", "").strip()
+    if explicit:
+        # Allow the special value "none" to force prompt-injection fallback.
+        if explicit.lower() == "none":
+            return None
+        return explicit
+
+    base_url = os.environ.get("OPENAI_BASE_URL", "").strip()
+    if base_url and "api.openai.com" not in base_url:
+        logger.info(
+            "Using prompt-injection fallback for custom endpoint (%s). "
+            "Set SKILLSPECTOR_STRUCTURED_OUTPUT_METHOD to override.",
+            base_url,
+        )
+        return None
+
+    return "json_schema"
+
+
+class _PromptInjectionStructuredModel:
+    """Fallback when ``with_structured_output`` is not supported by the endpoint.
+
+    Injects the JSON Schema into the prompt, calls the underlying chat model,
+    then extracts and validates the JSON response — the same approach used by
+    the CLI provider adapter (:class:`~skillspector.llm_utils._StructuredAgentCLIModel`).
+    """
+
+    def __init__(self, llm: BaseChatModel, schema: type) -> None:
+        self._llm = llm
+        self._schema = schema
+
+    def _augment(self, prompt: str) -> str:
+        schema_json = json.dumps(self._schema.model_json_schema(), indent=2)
+        return (
+            f"{prompt}\n\n"
+            "Respond with ONLY a single JSON object conforming to the JSON Schema "
+            "below. Do NOT wrap it in markdown code fences. Do NOT add any text "
+            f"before or after the JSON.\n\nJSON Schema:\n{schema_json}"
+        )
+
+    def invoke(self, prompt: str) -> object:
+        print(f"[SKILLSPECTOR] LLM prompt-injection call (tokens~{len(prompt) // 4})", flush=True)
+        logger.info("LLM prompt-injection call (tokens~%d)", len(prompt) // 4)
+        raw = self._llm.invoke(self._augment(prompt))
+        text = str(raw.text) if hasattr(raw, "text") else str(raw.content)
+        result = self._schema.model_validate(_extract_json_object(text))
+        print(f"[SKILLSPECTOR] LLM response parsed OK: {text[:200]}", flush=True)
+        logger.info("LLM prompt-injection response: %s", text[:200])
+        return result
+
+    async def ainvoke(self, prompt: str) -> object:
+        return await asyncio.to_thread(self.invoke, prompt)
 
 
 # ---------------------------------------------------------------------------
@@ -274,8 +353,16 @@ class LLMAnalyzerBase:
         self.model = model
         self._input_budget = get_max_input_tokens(model)
         self._llm = get_chat_model(model=model)
+        _method = _resolve_structured_output_method()
+        print(f"[SKILLSPECTOR] _resolve_structured_output_method -> {_method!r}", flush=True)
         self._structured_llm = (
-            self._llm.with_structured_output(self.response_schema) if self.response_schema else None
+            self._llm.with_structured_output(self.response_schema, method=_method)
+            if self.response_schema and _method is not None
+            else (
+                _PromptInjectionStructuredModel(self._llm, self.response_schema)
+                if self.response_schema and _method is None
+                else None
+            )
         )
 
     # -- Batching -----------------------------------------------------------

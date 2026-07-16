@@ -1,6 +1,6 @@
 ---
 name: pdf
-description: Read, extract, split, merge, rotate, watermark, fill, OCR, or create PDF files with verification of page counts and text extraction.
+description: Read, extract, and fill PDF forms, with verification of page counts and text extraction. Additional operations (split, merge, rotate, watermark, OCR, create) are supported through external tools (pdftotext, qpdf, PyMuPDF, reportlab) when installed.
 ---
 
 # PDF

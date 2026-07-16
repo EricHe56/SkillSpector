@@ -13,6 +13,26 @@ if [[ -z "$SESSION_DIR" ]]; then
   exit 1
 fi
 
+# Validate SESSION_DIR to prevent path traversal and unauthorized file deletion.
+# SESSION_DIR must be an absolute path under an allowed base directory:
+#   - /tmp/brainstorm-*  (ephemeral sessions)
+#   - */.superpowers/brainstorm/*  (persistent sessions)
+case "$SESSION_DIR" in
+  /tmp/brainstorm-*|*/.superpowers/brainstorm/*) ;;
+  *)
+    echo '{"error": "Invalid session directory: must be under /tmp/brainstorm- or .superpowers/brainstorm/"}'
+    exit 1
+    ;;
+esac
+
+# Reject paths containing '..' (directory traversal)
+case "$SESSION_DIR" in
+  *..*)
+    echo '{"error": "Invalid session directory: path traversal not allowed"}'
+    exit 1
+    ;;
+esac
+
 STATE_DIR="${SESSION_DIR}/state"
 PID_FILE="${STATE_DIR}/server.pid"
 

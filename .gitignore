@@ -108,3 +108,5 @@ credentials.json
 
 # LangGraph API server
 .langgraph_api/
+report.md
+SKILL.md

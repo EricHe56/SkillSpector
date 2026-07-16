@@ -58,6 +58,15 @@ uv venv .venv && source .venv/bin/activate
 
 # Install for production use
 make install
+# or win10
+make.bat install
+
+set SKILLSPECTOR_PROVIDER=openai
+set OPENAI_API_KEY=sk-...
+set OPENAI_BASE_URL=https://api.deepseek.com
+set SKILLSPECTOR_MODEL=deepseek-v4-flash
+
+.venv\Scripts\skillspector.exe scan C:\skills\algorithmic-art --format markdown --output report.md
 
 # Or install with development dependencies
 make install-dev

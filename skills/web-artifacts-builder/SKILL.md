@@ -7,6 +7,9 @@ license: Complete terms in LICENSE.txt
 # Web Artifacts Builder
 
 To build powerful frontend claude.ai artifacts, follow these steps:
+
+**Security note**: These scripts modify the filesystem, download packages via npm, and execute local commands. Only run scripts from trusted sources. Verify script integrity before execution.
+
 1. Initialize the frontend repo using `scripts/init-artifact.sh`
 2. Develop your artifact by editing the generated code
 3. Bundle all code into a single HTML file using `scripts/bundle-artifact.sh`

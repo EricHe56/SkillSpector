@@ -21,7 +21,7 @@ Use this skill when the user asks for Feishu, Lark, or "飞书" integration work
 ## Common Use Cases
 
 - Bot webhook messages
-- App access token and tenant access token flows
+- App and tenant authentication flows (env-configured tokens)
 - Docs, Sheets, Wiki, and Bitable reads/writes
 - Approval or workflow status updates
 - Feishu/Lark MCP server configuration

@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback
+description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback. Also runs project setup (dependency install) and baseline tests — obtain user consent before executing these steps.
 ---
 
 # Using Git Worktrees
@@ -113,6 +113,8 @@ cd "$path"
 
 ## Step 3: Project Setup
 
+Before proceeding, inform the user that dependency installation may execute scripts from the project's configuration files, and ask for explicit consent. Only run setup after user confirms.
+
 Auto-detect and run appropriate setup:
 
 ```bash
@@ -131,6 +133,8 @@ if [ -f go.mod ]; then go mod download; fi
 ```
 
 ## Step 4: Verify Clean Baseline
+
+Before running tests, ask the user for confirmation. Test runners may execute arbitrary code from the project.
 
 Run tests to ensure workspace starts clean:
 

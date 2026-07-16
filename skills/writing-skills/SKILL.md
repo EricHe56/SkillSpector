@@ -9,9 +9,11 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 **Writing skills IS Test-Driven Development applied to process documentation.**
 
-**Personal skills live in agent-specific directories (`~/.claude/skills` for Claude Code, `~/.agents/skills/` for Codex)** 
+**Personal skills live in agent-specific directories (e.g., `~/.agent/skills/`, check your agent's documentation)** 
 
 You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
+
+**Important**: This skill guides the creation and editing of skill files only at the user's explicit direction. Never modify this skill's own files or any skill files without the user's direct request and approval.
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 

@@ -17,8 +17,11 @@ it is referenced from a skill, hook, MCP server, or future plugin loader.
 1. Pick the location:
    - Global user plugin: `~/.deepseek/plugins/<plugin-name>/`
    - Workspace plugin: `<workspace>/plugins/<plugin-name>/`
-2. Normalize names to lower-case hyphen-case.
-3. Create `PLUGIN.md` with frontmatter:
+2. Before creating, verify the target directory does not already exist. If it
+   does, warn the user and list the existing files. Ask for explicit
+   confirmation before overwriting or merging into an existing directory.
+3. Normalize names to lower-case hyphen-case.
+4. Create `PLUGIN.md` with frontmatter:
 
 ```markdown
 ---
@@ -32,14 +35,14 @@ status: draft
 What it does, how to enable it, and any scripts or MCP servers it expects.
 ```
 
-4. Add companion folders only when useful:
+5. Add companion folders only when useful:
    - `skills/` for model instructions
    - `scripts/` for helpers invoked by a skill or hook
    - `mcp/` for an MCP server package or config notes
    - `assets/` for templates, examples, or fixtures
-5. Include an activation section in `PLUGIN.md` that says exactly how the user
+6. Include an activation section in `PLUGIN.md` that says exactly how the user
    should turn it on today.
-6. Validate by listing the created files and checking that `PLUGIN.md` has
+7. Validate by listing the created files and checking that `PLUGIN.md` has
    `name` and `description` frontmatter.
 
 Do not claim that dropping a folder into `plugins/` changes runtime behavior by
